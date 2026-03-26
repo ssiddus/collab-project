@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+    OWNER
+    ADMIN
+    MEMBER 
+  }
+enum Status{
+    Active
+    Inactive
+  }
+model User{
+    id String @id @default(uuid())
+    name String
+    email String @unique
+    passwordHash String
+    role Role
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    projects Project[]
+    tasks Task[]
+    
+    // foreign key
+    orgId String
+    org  Organization @relation(fields: [orgId], references: [id])
+  }
+
+model Organization{
+    id String @id @default(uuid())
+    name String
+    createdAt DateTime @default(now())
+    users User[]
+    projects Project[]
+  }
+
+model Project{
+    id String @id @default(uuid())
+    name String
+    description String
+    status Status
+    createdAt DateTime @default(now())
+    tasks Task[]
+
+  // foreign keys
+    orgId String
+    createdBy String
+
+  // relations
+    org Organization @relation(fields: [orgId], references: [id])
+    creator User @relation(fields: [createdBy], references: [id])
+  }
+
+enum StatusTask{
+    TODO
+    IN_PROGRESS
+    DONE
+  }
+
+model Task{
+    id String @id @default(uuid())
+    title String
+    description String?
+    status StatusTask @default(TODO)
+    // foreign keys
+    projectId String 
+    createdBy String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // relations
+    project Project @relation(fields: [projectId], references: [id])
+    creator User @relation(fields: [createdBy], references: [id])
+
+  }
