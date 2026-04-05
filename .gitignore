@@ -1,5 +1,9 @@
 node_modules
 # Keep environment variables out of version control
+notes.md
 .env
-
+dist/
+build/
+coverage/
 /src/generated/prisma
+.tsbuildinfo
