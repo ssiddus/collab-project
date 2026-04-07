@@ -6,6 +6,9 @@ import { Project } from "@prisma/client";
 export const createProjectService = async (data: ProjectInput, user: TokenPayload) => {
   const { name, description, status } = data;
   const { orgId, userId } = user;
+  if (user.role !== "ADMIN" && user.role !== "OWNER") {
+    throw new Error("Unauthorized: Only Owner or Admin can create project")
+  }
   if (!name || !status) {
     throw new Error("Missing required fields!");
   }

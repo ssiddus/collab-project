@@ -5,7 +5,7 @@ import { Response } from "express";
 export const createTaskController = async (req: AuthRequest, res: Response) => {
 
   try {
-    const { title, description, projectId } = req.body;
+    const { title, description, projectId, assignedTo } = req.body;
     if (!title || !projectId) {
       return res.status(400).json({
         message: "Required Fields are missing"
@@ -14,7 +14,8 @@ export const createTaskController = async (req: AuthRequest, res: Response) => {
     const result = await createTaskService(req.user!, {
       title,
       description,
-      projectId
+      projectId,
+      assignedTo
     })
     return res.status(201).json({
       message: "Task created Successfully",
@@ -61,14 +62,13 @@ export const getTaskByIdController = async (req: AuthRequest, res: Response) => 
 export const updateTaskController = async (req: AuthRequest, res: Response) => {
   try {
     const data = req.body;
-    const orgId = req.user!.orgId;
     const taskId = req.params.id as string;
     if (!data.title && !data.description && !data.status) {
       return res.status(400).json({
         message: "At least one field is required to update"
       })
     }
-    const result = await updateTaskService(taskId, orgId, data);
+    const result = await updateTaskService(taskId, req.user!, data);
     return res.status(200).json({
       message: "Task Updated Successfully",
       data: result
@@ -84,8 +84,7 @@ export const updateTaskController = async (req: AuthRequest, res: Response) => {
 export const deleteTaskController = async (req: AuthRequest, res: Response) => {
   try {
     const taskId = req.params.id as string;
-    const orgId = req.user!.orgId;
-    const result = await deleteTaskService(taskId, orgId);
+    await deleteTaskService(taskId, req.user!);
 
     return res.status(200).json({
       message: "Task Deleted Successfully",

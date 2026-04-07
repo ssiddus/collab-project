@@ -5,7 +5,7 @@ import { loginUser } from '../services/auth.service';
 export const register = async (req: Request, res: Response) => {
   try {
     const result = await registerUser(req.body);
-    res.status(200).json(result);
+    res.status(201).json(result);
   } catch (error) {
     console.error(error)
     if (error instanceof Error && error.message === "User already exists") {
@@ -23,7 +23,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     console.error(error)
-    if (error instanceof Error && error.message === "Invalid Credientials") {
+    if (error instanceof Error && error.message === "Invalid Credentials") {
       return res.status(401).json({ message: error.message })
     };
     return res.status(500).json({
@@ -31,3 +31,5 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 }
+
+

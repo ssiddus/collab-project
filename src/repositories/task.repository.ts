@@ -2,16 +2,18 @@ import { StatusTask, Task } from '@prisma/client'
 import prisma from '../utils/prisma'
 
 type TaskInput = {
-  title: string
-  description?: string
-  projectId: string
-  createdBy: string
+  title: string,
+  description?: string,
+  projectId: string,
+  createdBy: string,
+  assignedTo?: string
 }
 
 export type UpdateTaskInput = {
   title?: string,
   description?: string,
   status?: StatusTask,
+  assignedTo?: string
 }
 export const createTaskRepository = async (data: TaskInput): Promise<Task> => {
   return prisma.task.create({
@@ -19,7 +21,8 @@ export const createTaskRepository = async (data: TaskInput): Promise<Task> => {
       title: data.title,
       description: data.description,
       projectId: data.projectId,
-      createdBy: data.createdBy
+      createdBy: data.createdBy,
+      ...(data.assignedTo ? { assignee: { connect: { id: data.assignedTo } } } : {})
     }
   })
 }
@@ -53,7 +56,8 @@ export const updateTaskRepository = async (taskId: string, data: UpdateTaskInput
     data: {
       title: data.title,
       description: data.description,
-      status: data.status
+      status: data.status,
+      ...(data.assignedTo ? { assignee: { connect: { id: data.assignedTo } } } : {})
     }
   })
 

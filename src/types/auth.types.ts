@@ -1,9 +1,10 @@
 import { Request } from "express";
+import { Role } from "@prisma/client"
 
 export interface TokenPayload {
   userId: string,
   orgId: string,
-  role: string
+  role: Role
 }
 export interface AuthRequest extends Request {
   user?: TokenPayload;

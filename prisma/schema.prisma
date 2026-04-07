@@ -18,8 +18,8 @@ enum Role {
     MEMBER 
   }
 enum Status{
-    Active
-    Inactive
+    ACTIVE 
+    INACTIVE
   }
 model User{
     id String @id @default(uuid())
@@ -30,7 +30,8 @@ model User{
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     projects Project[]
-    tasks Task[]
+    createdTasks Task[] @relation("createdTasks")
+    assignedTasks Task[] @relation("assignedTasks")
     
     // foreign key
     orgId String
@@ -43,6 +44,7 @@ model Organization{
     createdAt DateTime @default(now())
     users User[]
     projects Project[]
+    inviteToken InviteToken[]
   }
 
 model Project{
@@ -78,9 +80,25 @@ model Task{
     createdBy String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    assignedTo String?
 
     // relations
     project Project @relation(fields: [projectId], references: [id])
-    creator User @relation(fields: [createdBy], references: [id])
+    creator User @relation("createdTasks",fields: [createdBy], references: [id])
+    assignee User? @relation("assignedTasks",fields: [assignedTo], references: [id])
 
+  }
+
+model InviteToken{
+    token String @id
+    email String
+    used Boolean @default(false)
+    expiresAt DateTime
+    createdAt DateTime @default(now())
+
+    //foreign key
+    orgId String
+
+    //relations
+    org Organization @relation(fields: [orgId], references: [id])
   }

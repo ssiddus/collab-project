@@ -1,4 +1,3 @@
-import { TokenPayload } from "../types/auth.types";
 import prisma from "../utils/prisma";
 import { Status, Project } from "@prisma/client";
 

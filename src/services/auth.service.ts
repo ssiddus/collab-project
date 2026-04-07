@@ -1,6 +1,8 @@
-import { findUserByEmail, createUserWithOrg } from "../repositories/user.repository";
+import { findUserByEmail, createUserWithOrg, createUserInOrg, getMembersByOrgRepository, getUserByUserId, updateUserRoleInOrg } from "../repositories/user.repository";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
+import { Role } from "@prisma/client";
+import { TokenPayload } from "../types/auth.types";
 
 
 interface RegisterInput {
@@ -90,4 +92,45 @@ export const loginUser = async (data: LoginInput) => {
   })
   const { passwordHash, ...safeUser } = user;
   return { token, user: safeUser };
+}
+
+
+export const createMemberService = async (name: string, email: string, password: string, orgId: string) => {
+  if (!name || !password || !email) {
+    throw new Error("Missing Required fields");
+  }
+
+  const existingUser = await findUserByEmail(email);
+
+  if (existingUser) {
+    throw new Error("User already exists")
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  return await createUserInOrg(name, email, passwordHash, orgId);
+
+}
+
+export const getMembersByOrgService = async (orgId: string) => {
+  return await getMembersByOrgRepository(orgId);
+}
+
+export const updateMemberRoleService = async (user: TokenPayload, memberUserId: string, role: Role) => {
+  if (user.role !== "OWNER") {
+    throw new Error("unauthorized: To perform this action")
+  }
+  if (memberUserId === user.userId) {
+    throw new Error("Owner account detected, role update rejected")
+  }
+  if (!role || role === "OWNER" || !memberUserId) {
+    throw new Error("Invalid inputs")
+  }
+
+  const validUser = await getUserByUserId(user.orgId, memberUserId);
+
+  if (!validUser) {
+    throw new Error("User not found")
+  }
+  return await updateUserRoleInOrg(user.orgId, memberUserId, role)
 }
