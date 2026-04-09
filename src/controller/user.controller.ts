@@ -1,7 +1,7 @@
 import { getMembersByOrgService, updateMemberRoleService } from "../services/auth.service";
 import { AuthRequest } from "../types/auth.types";
-import { Response } from "express"
-export const getMembersByOrgController = async (req: AuthRequest, res: Response) => {
+import { NextFunction, Response } from "express"
+export const getMembersByOrgController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const orgId = req.user!.orgId;
     const result = await getMembersByOrgService(orgId);
@@ -10,13 +10,11 @@ export const getMembersByOrgController = async (req: AuthRequest, res: Response)
       data: result
     })
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 }
 
-export const updateMemberRoleController = async (req: AuthRequest, res: Response) => {
+export const updateMemberRoleController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user!
     const userId = req.params.id as string;
@@ -30,9 +28,7 @@ export const updateMemberRoleController = async (req: AuthRequest, res: Response
     })
 
   } catch (error: any) {
-    res.status(400).json({
-      message: error.message || "Something went Wrong"
-    })
+    next(error)
   }
 }
 

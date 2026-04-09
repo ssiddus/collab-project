@@ -1,8 +1,8 @@
 import { createTaskService, getTasksByOrgService, getTaskByIdService, updateTaskService, deleteTaskService } from "../services/task.service";
 import { AuthRequest } from "../types/auth.types";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 
-export const createTaskController = async (req: AuthRequest, res: Response) => {
+export const createTaskController = async (req: AuthRequest, res: Response, next: NextFunction) => {
 
   try {
     const { title, description, projectId, assignedTo } = req.body;
@@ -23,14 +23,12 @@ export const createTaskController = async (req: AuthRequest, res: Response) => {
     })
 
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 }
 
 
-export const getTasksByOrgController = async (req: AuthRequest, res: Response) => {
+export const getTasksByOrgController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -39,13 +37,11 @@ export const getTasksByOrgController = async (req: AuthRequest, res: Response) =
     return res.status(200).json({ message: "Tasks fetched Successfully", data: result })
 
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 }
 
-export const getTaskByIdController = async (req: AuthRequest, res: Response) => {
+export const getTaskByIdController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const taskId = req.params.id as string;
     const orgId = req.user!.orgId;
@@ -55,13 +51,11 @@ export const getTaskByIdController = async (req: AuthRequest, res: Response) => 
       data: result
     })
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || " Something went wrong"
-    })
+    next(error)
   }
 }
 
-export const updateTaskController = async (req: AuthRequest, res: Response) => {
+export const updateTaskController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const data = req.body;
     const taskId = req.params.id as string;
@@ -77,13 +71,11 @@ export const updateTaskController = async (req: AuthRequest, res: Response) => {
     })
 
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 }
 
-export const deleteTaskController = async (req: AuthRequest, res: Response) => {
+export const deleteTaskController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const taskId = req.params.id as string;
     await deleteTaskService(taskId, req.user!);
@@ -92,9 +84,7 @@ export const deleteTaskController = async (req: AuthRequest, res: Response) => {
       message: "Task Deleted Successfully",
     })
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 
 }

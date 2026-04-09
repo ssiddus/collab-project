@@ -1,4 +1,5 @@
 import { findUserByEmail, createUserWithOrg, createUserInOrg, getMembersByOrgRepository, getUserByUserId, updateUserRoleInOrg } from "../repositories/user.repository";
+import { AppError } from "../middleware/error.middleware"
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt";
 import { Role } from "@prisma/client";
@@ -32,7 +33,7 @@ export const registerUser = async (data: RegisterInput) => {
   // basic validation
 
   if (!name || !email || !password || !organisationName) {
-    throw new Error("Missing required fields");
+    throw new AppError("Missing required fields", 400);
   }
 
   //checks email exists or not
@@ -40,7 +41,7 @@ export const registerUser = async (data: RegisterInput) => {
   const existingUser = await findUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new AppError("User already exists", 409);
   }
 
   // hash password
@@ -73,16 +74,16 @@ export const loginUser = async (data: LoginInput) => {
   const { email, password } = data;
 
   if (!email || !password) {
-    throw new Error("Invalid Credentials");
+    throw new AppError("Invalid Credentials", 401);
   }
   const user = await findUserByEmail(email);
   if (!user) {
-    throw new Error("Invalid Credentials");
+    throw new AppError("Invalid Credentials", 401);
   }
 
   const validPassword = await bcrypt.compare(password, user.passwordHash);
   if (!validPassword) {
-    throw new Error("Invalid Credentials")
+    throw new AppError("Invalid Credentials", 401)
 
   }
   const token = generateToken({
@@ -97,13 +98,13 @@ export const loginUser = async (data: LoginInput) => {
 
 export const createMemberService = async (name: string, email: string, password: string, orgId: string) => {
   if (!name || !password || !email) {
-    throw new Error("Missing Required fields");
+    throw new AppError("Missing Required fields", 400);
   }
 
   const existingUser = await findUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("User already exists")
+    throw new AppError("User already exists", 409)
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -118,19 +119,19 @@ export const getMembersByOrgService = async (orgId: string) => {
 
 export const updateMemberRoleService = async (user: TokenPayload, memberUserId: string, role: Role) => {
   if (user.role !== "OWNER") {
-    throw new Error("unauthorized: To perform this action")
+    throw new AppError("unauthorized: To perform this action", 403)
   }
   if (memberUserId === user.userId) {
-    throw new Error("Owner account detected, role update rejected")
+    throw new AppError("Owner account detected, role update rejected", 403)
   }
   if (!role || role === "OWNER" || !memberUserId) {
-    throw new Error("Invalid inputs")
+    throw new AppError("Invalid inputs", 400)
   }
 
   const validUser = await getUserByUserId(user.orgId, memberUserId);
 
   if (!validUser) {
-    throw new Error("User not found")
+    throw new AppError("User not found", 404)
   }
   return await updateUserRoleInOrg(memberUserId, role)
 }

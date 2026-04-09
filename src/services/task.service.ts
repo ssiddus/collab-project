@@ -4,6 +4,7 @@ import { getUserByUserId } from "../repositories/user.repository"
 import { TokenPayload } from "../types/auth.types"
 import { getProjectByIdService } from "./project.service"
 import { StatusTask } from "@prisma/client"
+import { AppError } from "../middleware/error.middleware"
 
 type CreateTaskInput = {
   title: string
@@ -14,18 +15,18 @@ type CreateTaskInput = {
 
 export const createTaskService = async (user: TokenPayload, data: CreateTaskInput) => {
   if (user.role !== "ADMIN" && user.role !== "OWNER") {
-    throw new Error("Unauthorized: Only Owner or Admin can create tasks")
+    throw new AppError("Unauthorized: Only Owner or Admin can create tasks", 403)
   }
 
   let assignedToId: string | undefined
   const project = await getProjectByIdService(data.projectId, user.orgId);
   if (!project) {
-    throw new Error("Project not Found or unauthorized")
+    throw new AppError("Project not Found", 404)
   }
   if (data.assignedTo) {
     const assignee = await getUserByUserId(user.orgId, data.assignedTo);
     if (!assignee) {
-      throw new Error("Assigned User not found in your organization")
+      throw new AppError("Assigned User not found in your organization", 404)
     }
     assignedToId = assignee.id
   }
@@ -44,11 +45,11 @@ export const getTasksByOrgService = async (orgId: string, page: number, limit: n
 
 export const getTaskByIdService = async (taskId: string, orgId: string) => {
   if (!taskId) {
-    throw new Error("Task Id is required not Found")
+    throw new AppError("Task Id is required not Found", 404)
   }
   const task = await getTaskByIdRepository(taskId, orgId);
   if (!task) {
-    throw new Error("Task not found or unauthorized");
+    throw new AppError("Task not found", 404);
   }
 
   return task;
@@ -58,13 +59,13 @@ export const getTaskByIdService = async (taskId: string, orgId: string) => {
 
 export const updateTaskService = async (taskId: string, user: TokenPayload, data: UpdateTaskInput) => {
   if (user.role !== "ADMIN" && user.role !== "OWNER") {
-    throw new Error("Unauthorized: Only Owner or Admin can update tasks")
+    throw new AppError("Unauthorized: Only Owner or Admin can update tasks", 403)
   }
 
   await getTaskByIdService(taskId, user.orgId);
 
   if (data.status && !Object.values(StatusTask).includes(data.status)) {
-    throw new Error("Invalid Status value")
+    throw new AppError("Invalid Status value", 400)
   }
 
   if (data.status) {
@@ -76,11 +77,11 @@ export const updateTaskService = async (taskId: string, user: TokenPayload, data
 
 export const deleteTaskService = async (taskId: string, user: TokenPayload) => {
   if (user.role !== "ADMIN" && user.role !== "OWNER") {
-    throw new Error("Unauthorized: Only Owner or Admin can delete tasks")
+    throw new AppError("Unauthorized: Only Owner or Admin can delete tasks", 403)
   }
 
   if (!taskId) {
-    throw new Error("Task Id is required not Found")
+    throw new AppError("Task Id is required not Found", 404)
   }
 
   await getTaskByIdService(taskId, user.orgId)

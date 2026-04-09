@@ -1,9 +1,9 @@
 import { acceptInviteService, sendInviteService } from "../services/sendInvite.service";
 import { AuthRequest } from "../types/auth.types";
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 
 
-export const sendInviteController = async (req: AuthRequest, res: Response) => {
+export const sendInviteController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
     const result = await sendInviteService(req.user!, email)
@@ -13,13 +13,11 @@ export const sendInviteController = async (req: AuthRequest, res: Response) => {
     })
 
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
   }
 }
 
-export const acceptInviteController = async (req: Request, res: Response) => {
+export const acceptInviteController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token, name, password, email } = req.body
 
@@ -36,9 +34,8 @@ export const acceptInviteController = async (req: Request, res: Response) => {
     })
 
   } catch (error: any) {
-    return res.status(400).json({
-      message: error.message || "Something went wrong"
-    })
+    next(error)
+
   }
 
 }
