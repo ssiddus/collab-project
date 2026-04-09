@@ -20,9 +20,14 @@ export const createProject = async (input: ProjectInput) => {
     }
   })
 }
-export const getProjects = async (orgId: string) => {
+export const getProjects = async (orgId: string, page: number, limit: number) => {
   return prisma.project.findMany({
-    where: { orgId }
+    where: { orgId },
+    skip: (page - 1) * 10,
+    take: limit,
+    orderBy: {
+      createdAt: "desc"
+    }
   })
 }
 

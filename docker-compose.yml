@@ -1,0 +1,29 @@
+
+services:
+  app:
+    build: "."
+    ports:
+      - "9322:9322"
+    environment:
+      DATABASE_URL: postgresql://collab_user:password123@db:5432/collab_db
+      JWT_SECRET: ${JWT_SECRET}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      NODE_ENV : ${NODE_ENV}
+    depends_on:
+      db:
+       condition: service_healthy
+  
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: collab_user
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: collab_db
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U collab_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

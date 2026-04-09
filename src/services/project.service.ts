@@ -23,11 +23,11 @@ export const createProjectService = async (data: ProjectInput, user: TokenPayloa
 
 }
 
-export const getProjectService = async (user: TokenPayload) => {
+export const getProjectService = async (user: TokenPayload, page: number, limit: number) => {
   if (!user.orgId) {
     throw new Error("Invalid request")
   }
-  return getProjects(user.orgId);
+  return getProjects(user.orgId, page, limit);
 }
 
 export const getProjectByIdService = async (id: string, orgId: string): Promise<Project | null> => {

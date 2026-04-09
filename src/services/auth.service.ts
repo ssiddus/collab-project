@@ -132,5 +132,5 @@ export const updateMemberRoleService = async (user: TokenPayload, memberUserId: 
   if (!validUser) {
     throw new Error("User not found")
   }
-  return await updateUserRoleInOrg(user.orgId, memberUserId, role)
+  return await updateUserRoleInOrg(memberUserId, role)
 }

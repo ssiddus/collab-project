@@ -1,6 +1,6 @@
 import { createTaskRepository, getTasksByOrgRepository, getTaskByIdRepository, updateTaskRepository, deleteTaskRepository } from "../repositories/task.repository"
 import { UpdateTaskInput } from "../repositories/task.repository"
-import { findUserByEmailAndOrg } from "../repositories/user.repository"
+import { getUserByUserId } from "../repositories/user.repository"
 import { TokenPayload } from "../types/auth.types"
 import { getProjectByIdService } from "./project.service"
 import { StatusTask } from "@prisma/client"
@@ -23,7 +23,7 @@ export const createTaskService = async (user: TokenPayload, data: CreateTaskInpu
     throw new Error("Project not Found or unauthorized")
   }
   if (data.assignedTo) {
-    const assignee = await findUserByEmailAndOrg(data.assignedTo, user.orgId);
+    const assignee = await getUserByUserId(user.orgId, data.assignedTo);
     if (!assignee) {
       throw new Error("Assigned User not found in your organization")
     }
@@ -38,8 +38,8 @@ export const createTaskService = async (user: TokenPayload, data: CreateTaskInpu
   });
 }
 
-export const getTasksByOrgService = async (orgId: string) => {
-  return getTasksByOrgRepository(orgId);
+export const getTasksByOrgService = async (orgId: string, page: number, limit: number) => {
+  return getTasksByOrgRepository(orgId, page, limit);
 }
 
 export const getTaskByIdService = async (taskId: string, orgId: string) => {
@@ -62,9 +62,8 @@ export const updateTaskService = async (taskId: string, user: TokenPayload, data
   }
 
   await getTaskByIdService(taskId, user.orgId);
-  const validStatusOptions = ["TODO", "IN_PROGRESS", "DONE"];
 
-  if (data.status && !validStatusOptions.includes(data.status)) {
+  if (data.status && !Object.values(StatusTask).includes(data.status)) {
     throw new Error("Invalid Status value")
   }
 

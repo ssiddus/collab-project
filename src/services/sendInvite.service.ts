@@ -1,5 +1,5 @@
 import { createInviteToken, findInviteToken, markTokenasUsed } from "../repositories/emailInvite.repository";
-import { createMemberService } from "./user.service";
+import { createMemberService } from "./auth.service";
 import { TokenPayload } from "../types/auth.types";
 import { generateToken } from "../utils/jwt";
 import { sendInviteEmail } from "../utils/email";

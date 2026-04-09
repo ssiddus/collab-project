@@ -32,7 +32,9 @@ export const createTaskController = async (req: AuthRequest, res: Response) => {
 
 export const getTasksByOrgController = async (req: AuthRequest, res: Response) => {
   try {
-    const result = await getTasksByOrgService(req.user!.orgId);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const result = await getTasksByOrgService(req.user!.orgId, page, limit);
 
     return res.status(200).json({ message: "Tasks fetched Successfully", data: result })
 
@@ -63,7 +65,7 @@ export const updateTaskController = async (req: AuthRequest, res: Response) => {
   try {
     const data = req.body;
     const taskId = req.params.id as string;
-    if (!data.title && !data.description && !data.status) {
+    if (!data.title && !data.description && !data.status && !data.assignedTo) {
       return res.status(400).json({
         message: "At least one field is required to update"
       })

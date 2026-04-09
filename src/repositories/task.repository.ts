@@ -22,16 +22,36 @@ export const createTaskRepository = async (data: TaskInput): Promise<Task> => {
       description: data.description,
       projectId: data.projectId,
       createdBy: data.createdBy,
-      ...(data.assignedTo ? { assignee: { connect: { id: data.assignedTo } } } : {})
+      assignedTo: data.assignedTo
     }
   })
 }
 
-export const getTasksByOrgRepository = async (orgId: string): Promise<Task[]> => {
+export const getTasksByOrgRepository = async (orgId: string, page: number, limit: number): Promise<Task[]> => {
   return prisma.task.findMany({
     where: {
       project: {
         orgId: orgId
+      }
+    },
+    skip: (page - 1) * limit,
+    take: limit,
+    orderBy: {
+      createdAt: "desc"
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      assignee: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
       }
     }
   })
@@ -57,7 +77,7 @@ export const updateTaskRepository = async (taskId: string, data: UpdateTaskInput
       title: data.title,
       description: data.description,
       status: data.status,
-      ...(data.assignedTo ? { assignee: { connect: { id: data.assignedTo } } } : {})
+      assignedTo: data.assignedTo
     }
   })
 

@@ -24,7 +24,7 @@ export const updateMemberRoleController = async (req: AuthRequest, res: Response
 
     const result = await updateMemberRoleService(user, userId, role);
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: "Member Role updated successfully",
       data: result
     })

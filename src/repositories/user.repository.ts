@@ -58,9 +58,9 @@ export const createUserInOrg = async (name: string, email: string, passwordHash:
   })
 }
 
-export const updateUserRoleInOrg = async (orgId: string, userId: string, role: Role) => {
+export const updateUserRoleInOrg = async (userId: string, role: Role) => {
   return prisma.user.update({
-    where: { id: userId, orgId: orgId },
+    where: { id: userId },
     data: { role }
   })
 

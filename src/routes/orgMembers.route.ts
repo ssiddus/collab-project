@@ -11,6 +11,6 @@ const router = express.Router();
 router.post("/invite", authMiddleware, sendInviteController);
 router.post("/accept-invite", acceptInviteController);
 router.get("/members", authMiddleware, getMembersByOrgController);
-router.put("/:id", authMiddleware, updateMemberRoleController);
+router.put("/:id/role", authMiddleware, updateMemberRoleController);
 
 export default router;
