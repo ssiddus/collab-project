@@ -7,28 +7,27 @@ import { createProjectSchema } from '../validators/project.validator';
 
 const router = express.Router();
 
-
 /**
-* @swagger
-* /projects:
-* post:
-*   summary: Create a new project (OWNER/ADMIN only)
-*   tags: [Projects]
-*   requestBody:
-*     required: true
-*     content:
-*       application/json:
-*         schema:
-*           type: object
-*           required: [name, status]
-*           properties:
-*             name: { type: string, example: "Website Redesign"}
-*             description: { type: string, example: "Q2 overhaul" }
-*             status: { type: string, enum: [ACTIVE, INACTIVE]}
-*    responses:
-*     200: { description: Project created }
-*     409: { description: Unauthorized }
-*/
+ * @swagger
+ * /projects:
+ *   post:
+ *     summary: Create a new project (OWNER/ADMIN only)
+ *     tags: [Projects]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, status]
+ *             properties:
+ *               name: { type: string, example: "Website Redesign" }
+ *               description: { type: string, example: "Q2 overhaul" }
+ *               status: { type: string, enum: [ACTIVE, INACTIVE] }
+ *     responses:
+ *       201: { description: Project created }
+ *       403: { description: Unauthorized }
+ */
 router.post('/', authMiddleware, validate(createProjectSchema), createProject);
 
 /**
