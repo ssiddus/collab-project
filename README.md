@@ -4,6 +4,18 @@ A production-ready backend API for team-based project management. Built with **N
 
 ---
 
+## Live Demo
+
+| | |
+|---|---|
+| **API Base** | https://collab-api-k1or.onrender.com |
+| **Swagger UI** | https://collab-api-k1or.onrender.com/api-docs |
+| **Health Check** | https://collab-api-k1or.onrender.com/health |
+
+> Test all endpoints interactively via Swagger UI — no Postman needed.
+
+---
+
 ## What Problem Does It Solve?
 
 When multiple teams use the same system, they must never see each other's data. This API enforces strict **multi-tenant data isolation** — every request is scoped to an organisation via JWT. Teams can manage projects, assign tasks, invite members via email, and control access through role-based permissions.
@@ -16,13 +28,19 @@ When multiple teams use the same system, they must never see each other's data. 
 Client Request
       │
       ▼
+  Rate Limiter (express-rate-limit)
+      │
+      ▼
+  Zod Validation (input shape & type check)
+      │
+      ▼
   Auth Middleware (JWT Verification)
       │
       ▼
    Controller  (handles HTTP request/response)
       │
       ▼
-    Service    (business logic, validation, RBAC)
+    Service    (business logic, RBAC)
       │
       ▼
   Repository   (all DB calls via Prisma ORM)
@@ -45,23 +63,28 @@ Every layer has a single responsibility. Controllers never touch the database. S
 | ORM | Prisma |
 | Database | PostgreSQL |
 | Auth | JWT + bcrypt |
+| Validation | Zod |
+| Logging | Winston |
+| API Docs | Swagger (OpenAPI 3.0) |
 | Email | Nodemailer (Gmail SMTP) |
+| Rate Limiting | express-rate-limit |
 | Containerisation | Docker + docker-compose |
 | CI/CD | GitHub Actions |
+| Testing | Jest + ts-jest |
 
 ---
 
 ## Features
 
 ### Authentication
-- `POST /auth/register` — creates user + organisation in a single transaction
+- `POST /auth/register` — creates user + organisation in a single atomic transaction
 - `POST /auth/login` — returns signed JWT
 
 ### Organisation Management
 - `POST /org/invite` — OWNER/ADMIN sends email invite with secure token
 - `POST /org/accept-invite` — invited member registers via token
 - `GET /org/members` — list all members in organisation
-- `PUT /org/member/:id/role` — OWNER updates member role (ADMIN or MEMBER)
+- `PUT /org/:id/role` — OWNER updates member role (ADMIN or MEMBER only)
 
 ### Project Management
 - `POST /projects` — create project (OWNER/ADMIN only)
@@ -105,6 +128,10 @@ const orgId = req.user.orgId
 - Single-use — marked as `used` after acceptance
 - Email must match the invited address
 
+### Rate Limiting
+- Global: 100 requests per 15 minutes per IP
+- Auth routes: stricter limit of 10 requests per 15 minutes per IP
+
 ---
 
 ## Database Schema
@@ -145,7 +172,7 @@ docker-compose up --build
 
 The server runs at `http://localhost:9322`
 
-Health check: `GET /health`
+Swagger UI: `http://localhost:9322/api-docs`
 
 ### Environment Variables
 
@@ -224,12 +251,13 @@ Authorization: Bearer <token>
 ```
 src/
 ├── controller/     # HTTP request/response handlers
-├── services/       # Business logic and validation
+├── services/       # Business logic and RBAC
 ├── repositories/   # All Prisma DB calls
-├── middleware/     # JWT auth middleware
-├── routes/         # Express route definitions
+├── middleware/     # JWT auth, rate limiting, error handling, Zod validation
+├── routes/         # Express route definitions with Swagger JSDoc
+├── validators/     # Zod schemas for all request bodies
 ├── types/          # TypeScript interfaces
-└── utils/          # JWT, email, Prisma client
+└── utils/          # JWT, email, Prisma client, Winston logger, Swagger setup
 
 prisma/
 ├── schema.prisma   # Database models
@@ -239,6 +267,16 @@ prisma/
 └── workflows/
     └── ci.yml      # GitHub Actions CI pipeline
 ```
+
+---
+
+## Testing
+
+```bash
+npx jest
+```
+
+29 unit tests across all service layers using Jest and ts-jest. Repositories are fully mocked — no real database needed during test runs.
 
 ---
 
@@ -272,6 +310,9 @@ npm install
 
 # Run locally (with ts-node-dev)
 npm run dev
+
+# Run tests
+npx jest
 
 # Build TypeScript
 npm run build
