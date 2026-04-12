@@ -10,9 +10,6 @@ export const createProjectService = async (data: ProjectInput, user: TokenPayloa
   if (user.role !== "ADMIN" && user.role !== "OWNER") {
     throw new AppError("Unauthorized: Only Owner or Admin can create project", 403)
   }
-  if (!name || !status) {
-    throw new AppError("Missing required fields!", 400);
-  }
 
   return createProject({
     name,

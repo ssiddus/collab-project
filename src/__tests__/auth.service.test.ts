@@ -17,16 +17,7 @@ const mockBcryptCompare = bcrypt.compare as jest.MockedFunction<typeof bcrypt.co
 
 describe("registerUser", () => {
 
-  it("should throw 400 if required fields are missing", async () => {
-    await expect(
-      registerUser({ name: "", email: "", password: "", organisationName: "" })
-    ).rejects.toThrow(AppError)
-    await expect(
-      registerUser({ name: "", email: "", password: "", organisationName: "" })
-    ).rejects.toMatchObject({ statusCode: 400 })
-  })
-
-  it("should throw 409 if email already exists", async () => {
+   it("should throw 409 if email already exists", async () => {
     mockFindUserByEmail.mockResolvedValue({ id: "1", email: "test@test.com" } as any)
 
     await expect(

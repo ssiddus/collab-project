@@ -21,11 +21,6 @@ export const acceptInviteController = async (req: Request, res: Response, next: 
   try {
     const { token, name, password, email } = req.body
 
-    if (!token || !name || !password || !email) {
-      return res.status(400).json({
-        message: "Missing required fields"
-      })
-    }
     const result = await acceptInviteService(token, name, email, password);
 
     return res.status(201).json({

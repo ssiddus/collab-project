@@ -213,7 +213,7 @@ Authorization: Bearer <token>
   "title": "Design homepage",
   "description": "Create mockups for homepage",
   "projectId": "project-uuid-here",
-  "assignedTo": "teammate@company.com"
+  "assignedTo": "user-uuid-here"
 }
 ```
 

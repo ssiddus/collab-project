@@ -6,11 +6,6 @@ export const createTaskController = async (req: AuthRequest, res: Response, next
 
   try {
     const { title, description, projectId, assignedTo } = req.body;
-    if (!title || !projectId) {
-      return res.status(400).json({
-        message: "Required Fields are missing"
-      })
-    }
     const result = await createTaskService(req.user!, {
       title,
       description,
@@ -59,11 +54,6 @@ export const updateTaskController = async (req: AuthRequest, res: Response, next
   try {
     const data = req.body;
     const taskId = req.params.id as string;
-    if (!data.title && !data.description && !data.status && !data.assignedTo) {
-      return res.status(400).json({
-        message: "At least one field is required to update"
-      })
-    }
     const result = await updateTaskService(taskId, req.user!, data);
     return res.status(200).json({
       message: "Task Updated Successfully",

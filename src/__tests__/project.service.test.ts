@@ -17,12 +17,6 @@ describe("createProjectService", () => {
     ).rejects.toMatchObject({ statusCode: 403 })
   })
 
-  it("should throw 400 if name is missing", async () => {
-    await expect(
-      createProjectService({ name: "", description: "desc", status: "ACTIVE" as any, orgId: "org-1", createdBy: "user-1" }, ownerUser)
-    ).rejects.toMatchObject({ statusCode: 400 })
-  })
-
   it("should create project successfully", async () => {
     const fakeProject = { id: "proj-1", name: "Test Project", orgId: "org-1" }
     mockCreateProject.mockResolvedValue(fakeProject as any)

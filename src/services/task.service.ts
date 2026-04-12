@@ -80,9 +80,6 @@ export const deleteTaskService = async (taskId: string, user: TokenPayload) => {
     throw new AppError("Unauthorized: Only Owner or Admin can delete tasks", 403)
   }
 
-  if (!taskId) {
-    throw new AppError("Task Id is required not Found", 404)
-  }
 
   await getTaskByIdService(taskId, user.orgId)
 

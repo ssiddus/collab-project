@@ -29,13 +29,6 @@ interface LoginInput {
 
 export const registerUser = async (data: RegisterInput) => {
   const { name, email, password, organisationName } = data;
-
-  // basic validation
-
-  if (!name || !email || !password || !organisationName) {
-    throw new AppError("Missing required fields", 400);
-  }
-
   //checks email exists or not
 
   const existingUser = await findUserByEmail(email);
@@ -72,10 +65,6 @@ export const registerUser = async (data: RegisterInput) => {
 
 export const loginUser = async (data: LoginInput) => {
   const { email, password } = data;
-
-  if (!email || !password) {
-    throw new AppError("Invalid Credentials", 401);
-  }
   const user = await findUserByEmail(email);
   if (!user) {
     throw new AppError("Invalid Credentials", 401);
@@ -97,9 +86,7 @@ export const loginUser = async (data: LoginInput) => {
 
 
 export const createMemberService = async (name: string, email: string, password: string, orgId: string) => {
-  if (!name || !password || !email) {
-    throw new AppError("Missing Required fields", 400);
-  }
+
 
   const existingUser = await findUserByEmail(email);
 

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express"
+import logger from "../utils/logger"
 
 
 export class AppError extends Error {
@@ -12,20 +13,30 @@ export class AppError extends Error {
 }
 
 export const errorMiddleware = (
-  err: AppError,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   if (err instanceof AppError) {
+    logger.warn(`AppError: ${err.message} | Status: ${err.statusCode} | Path:${req.path}`)
     return res.status(err.statusCode).json({
       message: err.message
     })
   }
+  if (err instanceof Error) {
+    logger.error(`Unhandled error: ${err.message}`, { stack: err.stack, path: req.path })
+    return res.status(500).json({
+      message: "Internal server error"
+    })
+  }
 
-  console.error(err)
+  logger.error("Unknown error occurred", {
+    path: req.path,
+    error: err
+  })
+
   return res.status(500).json({
     message: "Internal server error"
   })
-}
-
+} 
