@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer"
+import dns from "dns"
+
+dns.setDefaultResultOrder("ipv4first")
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -7,6 +10,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 })
+
+
+
 
 export const sendInviteEmail = async (email: string, token: string) => {
 

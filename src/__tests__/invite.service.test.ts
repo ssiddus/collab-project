@@ -1,7 +1,7 @@
 import { sendInviteService, acceptInviteService } from "../services/sendInvite.service"
 import { createInviteToken, findInviteToken, markTokenasUsed } from "../repositories/emailInvite.repository"
 import { createMemberService } from "../services/auth.service"
-import { sendInviteEmail } from "../utils/email"
+import { sendInviteEmail } from "../utils/email/gmailEmail"
 
 jest.mock("../repositories/emailInvite.repository")
 jest.mock("../services/auth.service")
