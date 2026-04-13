@@ -8,7 +8,7 @@ export const sendInviteController = async (req: AuthRequest, res: Response, next
     const { email } = req.body;
     const result = await sendInviteService(req.user!, email)
     return res.status(200).json({
-      message: "Email Invite sent successfully",
+      message: "Invite created successfully",
       data: result
     })
 

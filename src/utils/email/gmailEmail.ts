@@ -1,16 +1,15 @@
 import nodemailer from "nodemailer"
-import dns from "dns"
-
-dns.setDefaultResultOrder("ipv4first")
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 5000,
+  greetingTimeout: 5000,
+  socketTimeout: 5000,
 })
-
 
 
 
@@ -22,16 +21,16 @@ export const sendInviteEmail = async (email: string, token: string) => {
     subject: "You've been invited to join an organisation",
     text: `You have been invited to join an organisation on Collab.
 
-  Your invite token: ${token}
+         Your invite token: ${token}
 
-  Send a POST request to /org/accept-invite with:
-  {
-  "token": "${token}",
-  "name": "Your Name",
-  "email": "${email}",
-  "password": "yourchosenpassword"
-  }
+        Send a POST request to /org/accept-invite with:
+         {
+          "token": "${token}",
+          "name": "Your Name",
+          "email": "${email}",
+          "password": "yourchosenpassword"
+         }
  
-  This token expires in 1 hour.`
+      This token expires in 1 hour.`
   })
 }

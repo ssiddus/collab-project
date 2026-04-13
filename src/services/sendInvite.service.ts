@@ -3,7 +3,8 @@ import { AppError } from "../middleware/error.middleware";
 import { createMemberService } from "./auth.service";
 import { TokenPayload } from "../types/auth.types";
 import { generateToken } from "../utils/jwt";
-import { sendInviteEmail } from "../utils/email/brevoEmail";
+import { sendInviteEmail } from "../utils/email/gmailEmail";
+import logger from "../utils/logger";
 
 
 export const sendInviteService = async (user: TokenPayload, email: string) => {
@@ -17,11 +18,24 @@ export const sendInviteService = async (user: TokenPayload, email: string) => {
   if (!token) {
     throw new AppError("Something went wrong, Please retry again!", 500)
   }
-  await sendInviteEmail(email, token.token);
-  if (process.env.NODE_ENV === "development") {
-    return { message: "Invite sent successfully", token }
+  try {
+    await sendInviteEmail(email, token.token);
+  } catch (err) {
+    logger.warn("Email delivery failed - token returned in response")
   }
-  return { message: "Invite sent successfully" }
+  return {
+    message: "Invite created successfully. If email delivery fails, Share this token manually.",
+    token: token.token,
+    instructions: {
+      endpoint: " POST /org/accept-invite",
+      body: {
+        token: token.token,
+        name: "yourname",
+        email: email,
+        password: "yourpassword"
+      }
+    }
+  }
 }
 
 export const acceptInviteService = async (token: string, name: string, email: string, password: string) => {
