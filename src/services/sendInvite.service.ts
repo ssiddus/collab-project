@@ -3,7 +3,7 @@ import { AppError } from "../middleware/error.middleware";
 import { createMemberService } from "./auth.service";
 import { TokenPayload } from "../types/auth.types";
 import { generateToken } from "../utils/jwt";
-import { sendInviteEmail } from "../utils/email/gmailEmail";
+import { sendInviteEmail } from "../utils/email/brevoEmail";
 
 
 export const sendInviteService = async (user: TokenPayload, email: string) => {
